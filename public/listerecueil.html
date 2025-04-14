@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau des Inscriptions - Journée Culturelle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338CA;
+            --secondary: #10B981;
+            --secondary-dark: #0D9488;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --light: #F9FAFB;
+            --dark: #111827;
+            --gray: #6B7280;
+            --light-gray: #E5E7EB;
+            --white: #FFFFFF;
+            --table-header-bg: #F3F4F6;
+            --table-row-hover: #F9FAFB;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 2rem;
+            margin: 0 auto;
+        }
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        .subtitle {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        .card {
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .filter-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+        select {
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 0.5rem;
+            border: 1px solid var(--light-gray);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        th {
+            position: sticky;
+            top: 0;
+            background-color: var(--table-header-bg);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+        th:hover {
+            background-color: var(--light-gray);
+        }
+        .sort-icon {
+            margin-left: 0.5rem;
+            color: var(--gray);
+            transition: transform 0.3s ease;
+        }
+        .sort-asc .sort-icon {
+            transform: rotate(180deg);
+        }
+        tr:hover {
+            background-color: var(--table-row-hover);
+        }
+        .badge {
+            display: inline-flex;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            text-transform: capitalize;
+        }
+        .badge-success {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        .badge-danger {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        .badge-warning {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        .badge-info {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+            display: inline-block;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem;
+            transition: color 0.3s ease;
+        }
+        .action-btn i {
+            margin-right: 0.25rem;
+        }
+        .action-btn:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--light-gray);
+        }
+        .empty-state p {
+            font-size: 1rem;
+        }
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--white);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .detail-item {
+            margin-bottom: 1rem;
+        }
+        .detail-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .detail-value {
+            font-size: 0.95rem;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .detail-value.empty {
+            color: var(--gray);
+            font-style: italic;
+        }
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast-success {
+            background-color: var(--success);
+        }
+        .toast-error {
+            background-color: var(--danger);
+        }
+        .toast-info {
+            background-color: var(--primary);
+        }
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+            .modal-content {
+                width: 95%;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 576px) {
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            select {
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Inscriptions - Journée Culturelle</h1>
+            <p class="subtitle">Gestion complète des inscriptions</p>
+        </header>
+        <div class="card">
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher dans toutes les colonnes...">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">Filtrer par :</span>
+                    <select id="filterColumn">
+                        <option value="all">Tous les champs</option>
+                        <option value="name">Nom</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Téléphone</option>
+                        <option value="country">Pays</option>
+                        <option value="will_attend">Participation</option>
+                        <option value="will_participate">Activité</option>
+                    </select>
+                    <button id="exportBtn" class="btn btn-secondary">
+                        <i class="fas fa-file-pdf"></i> Exporter en PDF
+                    </button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-column="name">
+                                <div class="sort-header">
+                                    Nom complet
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="email">
+                                <div class="sort-header">
+                                    Email
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="phone">
+                                <div class="sort-header">
+                                    Téléphone
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="country">
+                                <div class="sort-header">
+                                    Pays
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="will_attend">
+                                <div class="sort-header">
+                                    Présence
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="will_participate">
+                                <div class="sort-header">
+                                    Participation
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="selected_activities">
+                                <div class="sort-header">
+                                    Activités
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="registration_date">
+                                <div class="sort-header">
+                                    Date d'inscription
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="sortable" data-column="additional_info">
+                                <div class="sort-header">
+                                    Info supplémentaire
+                                    <i class="fas fa-sort sort-icon"></i>
+                                </div>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTable">
+                        <!-- Les données seront chargées ici dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de détails -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Détails de l'inscription</h3>
+                <button id="closeModal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Les détails seront chargés ici -->
+            </div>
+        </div>
+    </div>
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+    <script>
+        // État courant
+        let currentData = [];
+        let sortColumn = 'registration_date';
+        let sortDirection = 'desc';
+        let searchTerm = '';
+        let filterColumn = 'all';
+        
+        // Éléments DOM
+        const dataTable = document.getElementById('dataTable');
+        const searchInput = document.getElementById('searchInput');
+        const filterColumnSelect = document.getElementById('filterColumn');
+        const detailModal = document.getElementById('detailModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const modalContent = document.getElementById('modalContent');
+        const exportBtn = document.getElementById('exportBtn');
+        const toast = document.getElementById('toast');
+        
+        // Configuration de l'API
+        const API_URL = '/api/inscriptions'; // Remplacez par votre URL d'API
+        
+        // Fonction pour afficher les notifications toast
+        function showToast(message, type = 'info') {
+            toast.textContent = message;
+            toast.className = `toast toast-${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Fonction pour formater les activités sélectionnées
+        function formatActivities(activities) {
+            if (!activities) return '-';
+            
+            // Si c'est une chaîne JSON, la parser
+            if (typeof activities === 'string' && activities.startsWith('[')) {
+                try {
+                    activities = JSON.parse(activities);
+                } catch (e) {
+                    console.error('Erreur de parsing des activités:', e);
+                    return activities; // Retourne la chaîne telle quelle en cas d'erreur
+                }
+            }
+            
+            // Si c'est un tableau, le joindre
+            if (Array.isArray(activities)) {
+                return activities.join(', ');
+            }
+            
+            // Sinon retourner la valeur telle quelle
+            return activities;
+        }
+        
+        // Fonction pour récupérer les données depuis l'API
+        async function fetchData() {
+            try {
+                showToast('Chargement des données en cours...', 'info');
+                
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                const result = await response.json();
+                currentData = Array.isArray(result) ? result : result.data || [];
+                
+                // Formater les activités pour chaque enregistrement
+                currentData = currentData.map(item => {
+                    return {
+                        ...item,
+                        selected_activities: formatActivities(item.selected_activities)
+                    };
+                });
+                
+                renderTable();
+                showToast(`Données chargées avec succès (${currentData.length} inscriptions)`, 'success');
+                console.log('Données chargées:', currentData);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données:', error);
+                dataTable.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Erreur lors du chargement des données</p>
+                        </td>
+                    </tr>
+                `;
+                showToast('Erreur lors du chargement des données', 'error');
+            }
+        }
+        
+        // Initialiser le tableau
+        function initTable() {
+            fetchData();
+            setupEventListeners();
+        }
+        
+        // Afficher le tableau avec les données courantes
+        function renderTable() {
+            // Filtrer et trier les données
+            const filteredData = filterData(currentData);
+            const sortedData = sortData(filteredData);
+            
+            // Vider les lignes existantes
+            dataTable.innerHTML = '';
+            
+            // Ajouter les nouvelles lignes
+            if (sortedData.length === 0) {
+                dataTable.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Aucune inscription ne correspond à vos critères</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                sortedData.forEach((item) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name || '-'}</td>
+                        <td>${item.email || '-'}</td>
+                        <td>${item.phone || '-'}</td>
+                        <td>${item.country || '-'}</td>
+                        <td>
+                            <span class="badge ${item.will_attend === 'Oui' ? 'badge-success' : item.will_attend === 'Non' ? 'badge-danger' : 'badge-warning'}">
+                                ${item.will_attend || 'Non'}
+                            </span>
+                        </td>
+                        <td>${item.will_participate || '-'}</td>
+                        <td class="text-truncate" title="${item.selected_activities || ''}">
+                            ${item.selected_activities || '-'}
+                        </td>
+                        <td>${formatDate(item.registration_date)}</td>
+                        <td class="text-truncate" title="${item.additional_info || ''}">
+                            ${item.additional_info || '-'}
+                        </td>
+                        <td>
+                            <button class="action-btn view-detail" data-id="${item.id}">
+                                <i class="fas fa-eye"></i> Voir
+                            </button>
+                        </td>
+                    `;
+                    dataTable.appendChild(row);
+                });
+            }
+            
+            // Mettre à jour les indicateurs de tri
+            updateSortIndicators();
+        }
+        
+        // Formater la date pour l'affichage
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Filtrer les données selon le terme de recherche et la colonne
+        function filterData(data) {
+            if (!searchTerm) return data;
+            const searchTermLower = searchTerm.toLowerCase();
+            return data.filter(item => {
+                if (filterColumn === 'all') {
+                    // Rechercher dans tous les champs texte
+                    return Object.entries(item).some(([key, value]) => {
+                        if (typeof value === 'string') {
+                            return value.toLowerCase().includes(searchTermLower);
+                        }
+                        return false;
+                    });
+                } else {
+                    // Rechercher dans une colonne spécifique
+                    const value = item[filterColumn];
+                    if (typeof value === 'string') {
+                        return value.toLowerCase().includes(searchTermLower);
+                    }
+                    return false;
+                }
+            });
+        }
+        
+        // Trier les données selon la colonne et la direction
+        function sortData(data) {
+            return [...data].sort((a, b) => {
+                let valA = a[sortColumn];
+                let valB = b[sortColumn];
+                
+                // Gérer les valeurs vides
+                if (valA === undefined || valA === null) valA = '';
+                if (valB === undefined || valB === null) valB = '';
+                
+                // Gestion spéciale pour les dates
+                if (sortColumn === 'registration_date') {
+                    const dateA = new Date(valA).getTime();
+                    const dateB = new Date(valB).getTime();
+                    return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+                }
+                
+                // Comparaison de chaînes par défaut
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return sortDirection === 'asc' 
+                        ? valA.localeCompare(valB, 'fr', { sensitivity: 'base' })
+                        : valB.localeCompare(valA, 'fr', { sensitivity: 'base' });
+                }
+                
+                // Solution de repli pour les autres types
+                return sortDirection === 'asc' 
+                    ? valA.toString().localeCompare(valB.toString())
+                    : valB.toString().localeCompare(valA.toString());
+            });
+        }
+        
+        // Mettre à jour les indicateurs visuels de tri
+        function updateSortIndicators() {
+            document.querySelectorAll('.sortable').forEach(header => {
+                const icon = header.querySelector('.sort-icon');
+                const column = header.dataset.column;
+                
+                // Réinitialiser toutes les icônes
+                icon.className = 'fas fa-sort sort-icon';
+                header.classList.remove('sort-asc', 'sort-desc');
+                
+                // Définir l'indicateur de tri actif
+                if (column === sortColumn) {
+                    if (sortDirection === 'asc') {
+                        icon.className = 'fas fa-sort-up sort-icon';
+                        header.classList.add('sort-asc');
+                    } else {
+                        icon.className = 'fas fa-sort-down sort-icon';
+                        header.classList.add('sort-desc');
+                    }
+                }
+            });
+        }
+        
+        // Afficher les détails d'une inscription dans la modal
+        function showRegistrationDetails(id) {
+            const registration = currentData.find(item => item.id === id);
+            if (!registration) {
+                showToast('Inscription non trouvée', 'error');
+                return;
+            }
+            
+            modalContent.innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Nom</div>
+                        <div class="detail-value">${registration.name || '<span class="empty">Non renseigné</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">${registration.email || '<span class="empty">Non renseigné</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Téléphone</div>
+                        <div class="detail-value">${registration.phone || '<span class="empty">Non renseigné</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Pays</div>
+                        <div class="detail-value">${registration.country || '<span class="empty">Non renseigné</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Présence</div>
+                        <div class="detail-value">
+                            <span class="badge ${registration.will_attend === 'Oui' ? 'badge-success' : registration.will_attend === 'Non' ? 'badge-danger' : 'badge-warning'}">
+                                ${registration.will_attend || 'Non'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Participation</div>
+                        <div class="detail-value">${registration.will_participate || '<span class="empty">Non spécifié</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Activités</div>
+                        <div class="detail-value">${registration.selected_activities || '<span class="empty">Aucune activité sélectionnée</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Informations supplémentaires</div>
+                        <div class="detail-value">${registration.additional_info || '<span class="empty">Aucune information supplémentaire</span>'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date d'inscription</div>
+                        <div class="detail-value">${formatDate(registration.registration_date)}</div>
+                    </div>
+                </div>
+            `;
+            
+            detailModal.classList.add('active');
+            console.log('Affichage des détails pour l\'inscription:', registration);
+        }
+        
+        // Exporter les données en PDF avec une mise en forme professionnelle
+        function exportToPDF() {
+            try {
+                showToast('Génération du PDF en cours...', 'info');
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm'
+                });
+                
+                // Ajouter le titre avec logo
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(79, 70, 229); // Couleur primaire
+                doc.text('Inscriptions - Journée Culturelle', 15, 15);
+                
+                // Ajouter la date et le nombre d'inscriptions
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0); // Noir
+                doc.text(`Généré le: ${new Date().toLocaleString('fr-FR')}`, 15, 22);
+                doc.text(`Nombre d'inscriptions: ${currentData.length}`, 15, 27);
+                
+                // Préparer les données pour le tableau
+                const headers = [
+                    'Nom',
+                    'Email', 
+                    'Téléphone',
+                    'Pays',
+                    'Présence',
+                    'Participation',
+                    'Activités',
+                    'Date d\'inscription',
+                    'Info supplémentaire'
+                ];
+                
+                const data = currentData.map(item => {
+                    return [
+                        item.name || '-',
+                        item.email || '-',
+                        item.phone || '-',
+                        item.country || '-',
+                        item.will_attend || 'Non',
+                        item.will_participate || '-',
+                        item.selected_activities || '-',
+                        formatDate(item.registration_date),
+                        item.additional_info || '-'
+                    ];
+                });
+                
+                // Style personnalisé pour les cellules
+                const styles = {
+                    overflow: 'linebreak',
+                    valign: 'middle',
+                    halign: 'left',
+                    cellPadding: 3,
+                    fontSize: 8
+                };
+                
+                // Ajouter le tableau avec style amélioré
+                doc.autoTable({
+                    head: [headers],
+                    body: data,
+                    startY: 35,
+                    margin: { left: 15, right: 15 },
+                    styles: {
+                        ...styles,
+                        fontStyle: 'normal'
+                    },
+                    headStyles: {
+                        fillColor: [79, 70, 229], // Couleur primaire
+                        textColor: 255,
+                        fontStyle: 'bold',
+                        valign: 'middle',
+                        halign: 'center'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 25, fontStyle: 'bold' }, // Nom en gras
+                        1: { cellWidth: 35 },
+                        2: { cellWidth: 25 },
+                        3: { cellWidth: 20 },
+                        4: { cellWidth: 20, halign: 'center' }, // Présence centrée
+                        5: { cellWidth: 25 },
+                        6: { cellWidth: 35 },
+                        7: { cellWidth: 25 },
+                        8: { cellWidth: 35 }
+                    },
+                    alternateRowStyles: {
+                        fillColor: [243, 244, 246] // Gris clair
+                    },
+                    didDrawPage: function(data) {
+                        // Pied de page
+                        doc.setFontSize(8);
+                        doc.setTextColor(100);
+                        doc.text(
+                            `Page ${data.pageCount}`,
+                            doc.internal.pageSize.width - 15,
+                            doc.internal.pageSize.height - 10,
+                            { align: 'right' }
+                        );
+                        
+                        // Ajouter un filigrane
+                        doc.setFontSize(60);
+                        doc.setTextColor(230, 230, 230);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(
+                            'JOURNÉE CULTURELLE',
+                            doc.internal.pageSize.width / 2,
+                            doc.internal.pageSize.height / 2,
+                            { align: 'center', angle: 45 }
+                        );
+                    }
+                });
+                
+                // Sauvegarder le PDF
+                const fileName = `Inscriptions_Journee_Culturelle_${new Date().toISOString().slice(0,10)}.pdf`;
+                doc.save(fileName);
+                
+                showToast(`PDF exporté avec succès (${fileName})`, 'success');
+                console.log('PDF généré avec succès');
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                showToast('Erreur lors de la génération du PDF', 'error');
+            }
+        }
+        
+        // Configurer les écouteurs d'événements
+        function setupEventListeners() {
+            // Recherche
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value;
+                renderTable();
+                console.log('Recherche effectuée:', { searchTerm, filterColumn });
+            });
+            
+            // Filtre par colonne
+            filterColumnSelect.addEventListener('change', (e) => {
+                filterColumn = e.target.value;
+                renderTable();
+                console.log('Filtre changé:', filterColumn);
+            });
+            
+            // En-têtes triables
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.column;
+                    // Si on clique sur la même colonne, inverser la direction
+                    if (sortColumn === column) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // Nouvelle colonne, tri ascendant par défaut
+                        sortColumn = column;
+                        sortDirection = 'asc';
+                    }
+                    renderTable();
+                    console.log('Tri appliqué:', { sortColumn, sortDirection });
+                });
+            });
+            
+            // Boutons "Voir"
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.view-detail')) {
+                    const id = parseInt(e.target.closest('.view-detail').dataset.id);
+                    showRegistrationDetails(id);
+                }
+            });
+            
+            // Fermer la modal
+            closeModalBtn.addEventListener('click', () => {
+                detailModal.classList.remove('active');
+            });
+            
+            // Fermer la modal en cliquant à l'extérieur
+            detailModal.addEventListener('click', (e) => {
+                if (e.target === detailModal) {
+                    detailModal.classList.remove('active');
+                }
+            });
+            
+            // Bouton d'export PDF
+            exportBtn.addEventListener('click', exportToPDF);
+        }
+        
+        // Initialiser le tableau au chargement de la page
+        document.addEventListener('DOMContentLoaded', initTable);
+    </script>
+</body>
+</html>
