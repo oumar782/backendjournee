@@ -11,5 +11,7 @@ const sequelize = new Sequelize(
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
   }
 );
+const sql = postgres(process.env.DATABASE_URL,  { ssl: 'verify-full' });
+
 
 module.exports = sequelize;
