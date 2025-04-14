@@ -113,7 +113,7 @@ app.post('/api/inscriptions', async (req, res) => {
   }
 });
 
-// ✅ Route GET - Liste des inscription
+// ✅ Route GET - Liste des inscriptions
 app.get('/api/inscriptions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM cultural_day_registrations ORDER BY registration_date DESC');
