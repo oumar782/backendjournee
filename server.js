@@ -6,7 +6,17 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
+// 🔓 Autorise tout le monde (à éviter en prod)
 app.use(cors());
+
+// ou mieux : autorise ton frontend uniquement
+app.use(cors({
+  origin: 'https://journee-culturelle.vercel.app/', // ← mets l’URL de ton frontend ici
+  origin: ' http://localhost:5173/ ', // ← mets l’URL de ton frontend ici
+
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // ← selon les méthodes que tu utilises
+  credentials: true // ← si tu envoies des cookies ou sessions
+}));
 app.use(bodyParser.json());
 
 // Connexion PostgreSQL
