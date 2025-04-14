@@ -25,7 +25,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://journee-culturelle.vercel.app/",
-      "https://backendjournee.vercel.app",
+      "https://backendjournee.vercel.app/",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -134,9 +134,13 @@ app.get('/api/inscriptions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM cultural_day_registrations ORDER BY registration_date DESC');
     res.status(200).json({ success: true, data: result.rows });
+    console.log("API request body:", req.body)
+
   } catch (error) {
     console.error("❌ Erreur récupération données :", error);
     res.status(500).json({ success: false, message: "Erreur serveur lors de la récupération" });
+    console.log("API request body:", req.body)
+
   }
 });
 
