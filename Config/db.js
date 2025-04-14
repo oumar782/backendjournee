@@ -1,18 +1,15 @@
-// Config/db.js
 const { Sequelize } = require('sequelize');
-const sql = postgres(process.env.DATABASE_URL,  { ssl: 'verify-full' });
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  
-  {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-  }
-);
-
+// Utilise directement la DATABASE_URL (c’est ce que Neon te donne)
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false // important pour les connexions cloud (Neon)
+    }
+  },
+  logging: false // désactive les logs SQL si t’en veux pas
+});
 
 module.exports = sequelize;
