@@ -26,6 +26,7 @@ app.use(
       "http://localhost:5173",
       "https://journee-culturelle.vercel.app/",
       "https://backendjournee.vercel.app/",
+      "https://https://backendjournee-v9qj.vercel.app/"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
