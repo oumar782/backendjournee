@@ -4,20 +4,36 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 // 🔓 Autorise tout le monde (à éviter en prod)
 app.use(cors());
 
-// ou mieux : autorise ton frontend uniquement
-app.use(cors({
-  origin: 'https://journee-culturelle.vercel.app/', // ← mets l’URL de ton frontend ici
-  origin: ' http://localhost:5173/ ', // ← mets l’URL de ton frontend ici
 
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // ← selon les méthodes que tu utilises
-  credentials: true // ← si tu envoies des cookies ou sessions
-}));
-app.use(bodyParser.json());
+// app.use(cors({
+//   origin: 'https://journee-culturelle.vercel.app/', 
+//   origin: ' http://localhost:5173/ ', 
+
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+//   credentials: true 
+// }));
+// app.use(bodyParser.json());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://journee-culturelle.vercel.app/",
+      "https://backendjournee.vercel.app/",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(express.json());
 
 // Connexion PostgreSQL
 const pool = new Pool({
