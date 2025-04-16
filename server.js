@@ -3,32 +3,33 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const pool = require('./Config/db.js'); // 👉 Connexion propre ici
+const pool = require('./Config/db.js'); // ✔ Connexion PostgreSQL
 
 const app = express();
 
-// CORS
+// ✅ CORS bien configuré
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://jssup.vercel.app/",
-      "backendjournee.vercel.app"
+      "https://jssup.vercel.app", // ⚠️ Pas de / à la fin
+      "https://backendjournee.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 
-// Route d’accueil
+// 📄 Route racine pour fichier HTML (optionnelle si en API pure)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'listerecueil.html'));
 });
 
-// POST - Enregistrement
+// 📥 Enregistrement
 app.post('/api/inscriptions', async (req, res) => {
   const {
     name, email, phone, country,
@@ -46,7 +47,8 @@ app.post('/api/inscriptions', async (req, res) => {
 
   const participation = ['oui', 'non'].includes(willParticipate) ? willParticipate : 'non';
 
-  let activities = '';
+  // ✅ Normalisation des activités
+  let activities = null;
   if (selected_activities) {
     if (typeof selected_activities === 'string') {
       activities = selected_activities;
@@ -73,7 +75,7 @@ app.post('/api/inscriptions', async (req, res) => {
   }
 });
 
-// 🔥 CORRECTION : GET route (api, pas appi)
+// 📤 Récupération des inscriptions
 app.get('/api/inscriptions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM cultural_day_registrations ORDER BY registration_date DESC');
@@ -84,7 +86,7 @@ app.get('/api/inscriptions', async (req, res) => {
   }
 });
 
-// Lancer le serveur
+// 🚀 Lancement serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
