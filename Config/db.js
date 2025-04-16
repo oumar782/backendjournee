@@ -1,8 +1,7 @@
 // db.js
 require('dotenv').config();
 const { Pool } = require('pg');
-const sql = postgres(process.env.DATABASE_URL,  { ssl: 'verify-full' });
-
+import postgres from 'postgres';
 // Pool PostgreSQL avec configuration .env
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -14,6 +13,9 @@ const pool = new Pool({
   
 });
 
+const sql = postgres(process.env.DATABASE_URL, {
+  ssl: 'require'
+});
 // Test de connexion
 pool.query('SELECT NOW()', (err) => {
   if (err) {
