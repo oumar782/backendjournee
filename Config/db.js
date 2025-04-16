@@ -1,15 +1,26 @@
-const { Sequelize } = require('sequelize');
+// db.js
+require('dotenv').config();
+const { Pool } = require('pg');
+const sql = postgres(process.env.DATABASE_URL,  { ssl: 'verify-full' });
 
-// Utilise directement la DATABASE_URL (c’est ce que Neon te donne)
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false // important pour les connexions cloud (Neon)
-    }
-  },
-  logging: false // désactive les logs SQL si t’en veux pas
+// Pool PostgreSQL avec configuration .env
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT || 5432,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  
 });
 
-module.exports = sequelize;
+// Test de connexion
+pool.query('SELECT NOW()', (err) => {
+  if (err) {
+    console.error('❌ Erreur connexion PostgreSQL :', err);
+  } else {
+    console.log('✅ Connecté à PostgreSQL avec succès');
+  }
+});
+
+module.exports = pool;
