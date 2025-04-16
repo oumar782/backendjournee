@@ -13,7 +13,6 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://jssup.vercel.app/",
-      "https://backendjournee.vercel.app/",
       "https://backendjournee-v9qj.vercel.app/"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
