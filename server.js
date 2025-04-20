@@ -12,7 +12,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://jssup.vercel.app", // ⚠️ Pas de / à la fin
+      "https://jc-supemir.vercel.app", // ⚠️ Pas de / à la fin
       "https://backendjournee.vercel.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
